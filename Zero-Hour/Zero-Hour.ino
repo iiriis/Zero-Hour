@@ -1,7 +1,12 @@
 #include "LIS3DHTR.h"
 #include <Wire.h>
-LIS3DHTR<TwoWire> LIS; 
+
+
+
+LIS3DHTR<TwoWire> LIS;
 #define WIRE Wire
+
+
 
 void setup() {
 
@@ -24,7 +29,18 @@ void loop() {
     return;
   }
 
-  Serial.print(LIS.getAccelerationX()); Serial.print("  ");
-  Serial.print(LIS.getAccelerationY()); Serial.print("  ");
-  Serial.println(LIS.getAccelerationZ());
+  float xacl = LIS.getAccelerationX();
+  float yacl = LIS.getAccelerationY();
+  float zacl = LIS.getAccelerationZ();
+
+
+  if (abs(xacl) > 15 || abs(yacl) > 15 || abs(zacl) > 15)
+  {
+    Serial.println("Accident Happened");
+    delay(3000);
+  }
+
+  Serial.print(xacl); Serial.print("  ");
+  Serial.print(yacl); Serial.print("  ");
+  Serial.println(zacl);
 }
