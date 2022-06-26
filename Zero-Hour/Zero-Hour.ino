@@ -19,9 +19,9 @@ String lat = "INV", lon = "INV", msg = "";
 boolean gpsStat = false, acclStat = false, wiFiStat = false;
 
 static const char *from_number = "YOUR_TWILIO_NUMBER";
-static const char *to_number = "YOUR_TO_MESSAGE_NUMBER_0";
-static const char *to_number1 = "YOUR_TO_MESSAGE_NUMBER_1";
 
+
+String to_numbers[] = {"YOUR_TO_MESSAGE_NUMBER_0", "YOUR_TO_MESSAGE_NUMBER_1", "YOUR_TO_MESSAGE_NUMBER_2"};
 
 
 Twilio *twilio;
@@ -40,14 +40,18 @@ void setup() {
 void loop() {
 
   boolean f = checkAccident();
-  digitalWrite(2, HIGH);
+ 
   
   String response;
   if(f)
   {
-    boolean success = twilio->send_message(to_number1, from_number, msg, response);
-    //success = twilio->send_message(to_number1, from_number, msg, response);
-
+    boolean success = false;
+    
+    for (int i = 0; i < 3; i++)
+    {
+      msg = "YOUR_NAME Had an Accident at location " + msg + " Please Help";
+      success = twilio->send_message(to_numbers[i], from_number, msg, response);
+    }
 
     if(success)
     {
@@ -56,8 +60,6 @@ void loop() {
     }
     delay(3000);
   }
-
-    //digitalWrite(2, LOW);
 
   
 }
