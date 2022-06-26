@@ -31,9 +31,13 @@ Then the microcontroller reads the location information from the GPS and simulta
 Twilio part
 
 ## Challenges we ran into
+The time crunch is a great challenge for all teams we guess and we are no exception to that. Making the hardware work with limited components was the biggest challenge of all, **probably the hackiest hack one will see at this hackathon ;)** 
 
 ## Accomplishments that we're proud of
+This is the first time we tried to use and incorporate Twilio and once it worked as it is supposed, that was a moment of great relief and achievement. Apart from that, twenty-four hours went by really fast and honestly, we are just glad to have reached our goals for the hack that we wanted to establish in this hackathon. 
 
 ## What we learned
+Since we had never worked with Twilio before, it was definitely something we learned. 
 
 ## What's next for Zero Hour
+The next step for us would be turning Zero Hour into a reality, by making it a full-fledged usable product. We will be working on building the controller, and hopefully, increase our team to create the app as discussed in the Features Future Goals. Even though it might be a long journey till productisation, but today we have already planted the seed.
