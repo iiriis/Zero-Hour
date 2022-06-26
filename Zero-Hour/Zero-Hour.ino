@@ -1,4 +1,5 @@
 #include "LIS3DHTR.h"
+#include "twilio.hpp"
 #include <TinyGPSPlus.h>
 #include <Wire.h>
 
@@ -11,24 +12,80 @@ TinyGPSPlus gps;
 
 TaskHandle_t t1;
 
+static const char *ssid = "YOUR_WIFI_SSID";
+static const char *password = "YOUR_WIFI_PASSWORD";
+
 String lat = "INV", lon = "INV", msg = "";
+boolean gpsStat = false, acclStat = false, wiFiStat = false;
+
+static const char *from_number = "YOUR_TWILIO_NUMBER";
+static const char *to_number = "YOUR_TO_MESSAGE_NUMBER_0";
+static const char *to_number1 = "YOUR_TO_MESSAGE_NUMBER_1";
+
+
+
+Twilio *twilio;
 
 void setup() {
 
   Serial.begin(115200);
+  pinMode(2, OUTPUT);
   accelInit();
   gpsInit();
+  setupWiFiAndTwilio();
 
 }
 
+
+void loop() {
+
+  boolean f = checkAccident();
+  digitalWrite(2, HIGH);
+  
+  String response;
+  if(f)
+  {
+    boolean success = twilio->send_message(to_number1, from_number, msg, response);
+    //success = twilio->send_message(to_number1, from_number, msg, response);
+
+
+    if(success)
+    {
+    Serial.println("Message Sent");
+    digitalWrite(2, HIGH);
+    }
+    delay(3000);
+  }
+
+    //digitalWrite(2, LOW);
+
+  
+}
+
+
+
 void accelInit()
 {
-  while (!Serial) {};
+
   LIS.begin(WIRE, 0x19);
   delay(100);
   LIS.setOutputDataRate(LIS3DHTR_DATARATE_5KHZ);
   LIS.setHighSolution(true);
+
+  if (!LIS)
+  {
+    acclStat = false;
+    Serial.println("LIS3DHTR didn't connect.");
+    while (1);
+    return;
+  }
+
+  else
+    acclStat = true;
 }
+
+
+
 
 void gpsInit()
 {
@@ -44,25 +101,26 @@ void gpsInit()
 }
 
 
-void loop() {
-  if (!LIS)
-  {
-    Serial.println("LIS3DHTR didn't connect.");
-    while (1);
-    return;
-  }
-
+boolean checkAccident()
+{
   float xacl = LIS.getAccelerationX();
   float yacl = LIS.getAccelerationY();
   float zacl = LIS.getAccelerationZ();
 
+//Serial.printf("%f %f %f\n", xacl, yacl, zacl);
 
   if (abs(xacl) > 15 || abs(yacl) > 15 || abs(zacl) > 15)
   {
     Serial.println("Accident Happened");
-    delay(3000);
+    return true;
   }
+
+  return false;
 }
+
+
+
+
 
 void runGPS(void *pv)
 {
@@ -80,11 +138,44 @@ void runGPS(void *pv)
       lon = String(gps.location.lng(), 6);
       msg = lat + " , " + lon;
 
-      Serial.println(msg);
+      //Serial.println(msg);
+      gpsStat = true;
     }
     else
+    {
       Serial.println("Invalid");
+      gpsStat = false;
+    }
     delay(1000);
   }
 
 }
+
+
+void setupWiFiAndTwilio()
+{
+
+  static const char *account_sid = "YOUR_TWILIO_ACC_SID";
+  static const char *auth_token = "YOUR_AUTH_TOKEN";
+  
+
+
+  Serial.print("Connecting to WiFi network ;");
+  Serial.print(ssid);
+  Serial.println("'...");
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.println("Connecting...");
+    delay(500);
+  }
+  
+
+   Serial.println("Connected!");
+
+   twilio = new Twilio(account_sid, auth_token);
+
+   
+}
+
+
